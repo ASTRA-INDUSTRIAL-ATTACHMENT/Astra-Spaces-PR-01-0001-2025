@@ -145,7 +145,7 @@
                     <div class="glass-card p-6 rounded-2xl shadow-xl hover:shadow-2xl transition duration-300 animate-fadeInUp" style="animation-delay: 0.4s;">
                         <div class="flex items-center justify-between">
                             <div>
-                                <div class="text-3xl font-bold bg-gradient-to-r from-red-500 to-red-600 bg-clip-text text-transparent">KSh {{ number_format($rental_summary['arrears']) }}</div>
+                                <div class="text-3xl font-bold bg-gradient-to-r from-red-500 to-red-600 bg-clip-text text-transparent">KSh {{ number_format($arrears, 2) }}</div>
                                 <div class="text-sm font-medium text-gray-600 mt-2">Outstanding Arrears</div>
                             </div>
                             <div class="bg-gradient-to-r from-red-500 to-red-600 p-4 rounded-xl">
@@ -262,11 +262,12 @@
                                 <h3 class="text-lg font-semibold text-gray-800">RECENT PAYMENTS</h3>
                             </div>
                             <div class="p-6">
-                                <div class="text-center py-4 text-gray-500">
-                                    <i class="fas fa-history text-2xl mb-2"></i>
-                                    <p class="text-sm">No payment history</p>
-                                    <a href="{{ route('tenant.payments') }}" class="text-blue-600 hover:text-blue-800 text-sm">View All Payments</a>
-                                </div>
+                                 
+                                    <div class="text-center py-4 text-gray-500">
+                                        <i class="fas fa-history text-2xl mb-2"></i>
+                                        <p class="text-sm">No payment history</p>
+                                        <a href="{{ route('tenant.payments') }}" class="text-blue-600 hover:text-blue-800 text-sm">View All Payments</a>
+                                    </div>
                             </div>
                         </div>
                     </div>
