@@ -39,21 +39,35 @@ Astra Spaces is a rental management platform that enables landlords to manage pr
    ```bash
    git clone https://github.com/ASTRA-INDUSTRIAL-ATTACHMENT/Astra-Spaces-PR-01-0001-2025.git
    cd Astra-Spaces-PR-01-0001-2025
-2. install- Php Dependancies
+2. **Install PHP dependencies**
+   ```bash
    composer install
-3. install Node.js dependencies
+   ```
+3. **Install Node.js dependencies**
+   ```bash
    npm install
-4. Environment setup
+   ```
+4. **Environment setup**
+   ```bash
    cp .env.example .env
-   php artisan key:generate     
+   php artisan key:generate
+   ```    
 5. Configure database in .env
-   composer install
-6. Run migration and seeders
-   php arisan migrate --seed 
-7. compile assets
+   ```bash
+   '.env'
+   ```
+6.  **Run migrations and seeders**
+   ```bash
+   php artisan migrate --seed
+   ```
+7. **Compile assets**
+   ```bash
    npm run dev
-8. Start server
+   ```
+8. **Start the development server**
+   ```bash
    php artisan serve
+   ```
 
 
 
