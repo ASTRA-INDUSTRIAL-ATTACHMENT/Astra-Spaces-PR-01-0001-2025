@@ -29,7 +29,8 @@ class MpesaController extends Controller
         $request->validate([
             'phone_number' => 'required|string',
             'amount' => 'required|numeric|min:1',
-            'unit_id' => 'required|exists:units,id'
+            'unit_id' => 'required|exists:units,id',
+            'payment_type' => 'required|string|in:rent,deposit,utility,maintenance,other'
         ]);
 
         try {
@@ -50,8 +51,9 @@ class MpesaController extends Controller
                 ], 400);
             }
 
-            $accountReference = 'RENT-' . $assignment->unit->unit_number . '-' . $user->id;
-            $transactionDesc = 'Rent payment for ' . $assignment->property->name . ' - Unit ' . $assignment->unit->unit_number;
+            $paymentType = $request->payment_type;
+            $accountReference = strtoupper($paymentType) . '-' . $assignment->unit->unit_number . '-' . $user->id;
+            $transactionDesc = ucfirst($paymentType) . ' payment for ' . $assignment->property->name . ' - Unit ' . $assignment->unit->unit_number;
 
             // Initiate STK Push
             $response = $this->mpesaService->stkPush(
@@ -73,6 +75,7 @@ class MpesaController extends Controller
                     'merchant_request_id' => $response['MerchantRequestID'],
                     'account_reference' => $accountReference,
                     'transaction_desc' => $transactionDesc,
+                    'payment_type' => $paymentType,
                     'status' => MpesaTransaction::STATUS_PENDING
                 ]);
 
@@ -103,9 +106,24 @@ class MpesaController extends Controller
      */
     public function callback(Request $request)
     {
-        Log::info('M-Pesa Callback Received: ', $request->all());
+        Log::info('M-Pesa Callback Received: ', [
+            'method' => $request->method(),
+            'data' => $request->all(),
+            'headers' => $request->headers->all()
+        ]);
 
         try {
+            // Handle GET requests (for testing or sandbox verification)
+            if ($request->isMethod('GET')) {
+                Log::info('GET request to M-Pesa callback endpoint - likely for testing/verification');
+                return response()->json([
+                    'ResultCode' => 0, 
+                    'ResultDesc' => 'Callback endpoint is active',
+                    'message' => 'M-Pesa callback endpoint is working properly'
+                ]);
+            }
+
+            // Handle POST requests (actual M-Pesa callbacks)
             $callbackData = $request->all();
             
             if (!isset($callbackData['Body']['stkCallback'])) {
@@ -138,19 +156,34 @@ class MpesaController extends Controller
                         'amount' => $transaction->amount,
                         'payment_date' => now(),
                         'payment_method' => 'mpesa',
-                        'payment_type' => 'rent',
+                        'payment_type' => $transaction->payment_type,
                         'notes' => 'M-Pesa payment - Receipt: ' . $transaction->mpesa_receipt_number,
                         'recorded_by' => $transaction->tenant_id,
                         'mpesa_transaction_id' => $transaction->id
                     ]);
 
+                    // Generate receipt automatically
+                    $receipt = \App\Http\Controllers\ReceiptController::generateFromPayment($payment);
+                    
+                    // Send receipt via email if tenant has email
+                    if ($payment->tenant->email) {
+                        try {
+                            \Mail::to($payment->tenant->email)->send(new \App\Mail\ReceiptMail($receipt));
+                            $receipt->update(['status' => 'sent']);
+                        } catch (\Exception $e) {
+                            \Log::error('Failed to send receipt email after M-Pesa payment: ' . $e->getMessage());
+                        }
+                    }
+
                     // Log the successful payment activity
                     ActivityLog::logActivity(
                         $transaction->tenant_id,
                         'payment_completed',
-                        'Payment of KSh ' . number_format($transaction->amount) . ' completed successfully via M-Pesa',
+                        'Payment of KSh ' . number_format($transaction->amount) . ' completed successfully via M-Pesa. Receipt #' . $receipt->receipt_number . ' generated.',
                         [
                             'payment_id' => $payment->id,
+                            'receipt_id' => $receipt->id,
+                            'receipt_number' => $receipt->receipt_number,
                             'amount' => $transaction->amount,
                             'method' => 'mpesa',
                             'receipt' => $transaction->mpesa_receipt_number,
@@ -181,9 +214,23 @@ class MpesaController extends Controller
      */
     public function timeout(Request $request)
     {
-        Log::info('M-Pesa Timeout: ', $request->all());
+        Log::info('M-Pesa Timeout: ', [
+            'method' => $request->method(),
+            'data' => $request->all()
+        ]);
         
         try {
+            // Handle GET requests (for testing or verification)
+            if ($request->isMethod('GET')) {
+                Log::info('GET request to M-Pesa timeout endpoint - likely for testing/verification');
+                return response()->json([
+                    'ResultCode' => 0, 
+                    'ResultDesc' => 'Timeout endpoint is active',
+                    'message' => 'M-Pesa timeout endpoint is working properly'
+                ]);
+            }
+
+            // Handle POST requests (actual M-Pesa timeouts)
             $timeoutData = $request->all();
             
             if (isset($timeoutData['Body']['stkCallback']['CheckoutRequestID'])) {

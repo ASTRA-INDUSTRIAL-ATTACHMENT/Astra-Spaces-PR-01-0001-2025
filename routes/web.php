@@ -3,6 +3,7 @@
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\LandlordController;
 use App\Http\Controllers\TenantController;
+use App\Http\Controllers\ContactController;
 use App\Http\Controllers\PropertyController;
 use App\Http\Controllers\MpesaController;
 use Illuminate\Support\Facades\Route;
@@ -19,6 +20,8 @@ Route::get('/about', function () {
 Route::get('/contact', function () {
     return view('contact');
 });
+// Handle form submission (POST)
+Route::post('/contact', [ContactController::class, 'store'])->name('contact.submit');
 
 // M-Pesa Testing Dashboard (for development)
 Route::get('/mpesa-test', function () {
@@ -43,76 +46,7 @@ Route::get('/dashboard', function () {
 // Landlord Routes (Protected by role middleware)
 Route::middleware(['auth', 'role:landlord'])->prefix('landlord')->name('landlord.')->group(function () {
     // Dashboard
-    Route::get('/dashboard', function () {
-        $user = auth()->user();
-        
-        // Get recent properties with their unit counts
-        $properties = \App\Models\Property::where('landlord_id', $user->id)
-            ->withCount('units')
-            ->withCount(['units as occupied_units' => function($query) {
-                $query->where('status', 'occupied');
-            }])
-            ->withCount(['units as vacant_units' => function($query) {
-                $query->where('status', 'vacant');
-            }])
-            ->latest()
-            ->take(5)
-            ->get();
-            
-        // Get summary statistics
-        $total_properties = \App\Models\Property::where('landlord_id', $user->id)->count();
-        
-        // Get total occupied units
-        $total_occupied_units = \App\Models\Unit::whereHas('property', function($query) use ($user) {
-                $query->where('landlord_id', $user->id);
-            })
-            ->where('status', 'occupied')
-            ->count();
-            
-        // Get total unique tenants
-        $total_tenants = \App\Models\TenantAssignment::whereHas('unit.property', function($query) use ($user) {
-                $query->where('landlord_id', $user->id);
-            })
-            ->where('status', 'active')
-            ->distinct('tenant_id')
-            ->count('tenant_id');
-        
-        // Calculate real total arrears using same logic as PaymentController
-        $propertyIds = $properties->pluck('id');
-        $assignments = \App\Models\TenantAssignment::whereHas('unit', function($q) use ($propertyIds) {
-            $q->whereIn('property_id', $propertyIds);
-        })
-        ->active()
-        ->with(['tenant', 'unit', 'property'])
-        ->get();
-
-        $sum_arrears = 0;
-        foreach ($assignments as $assignment) {
-            $tenant = $assignment->tenant;
-            if (!$tenant) continue;
-            $totalPaid = \App\Models\Payment::where('tenant_id', $tenant->id)
-                ->where('unit_id', $assignment->unit_id)
-                ->where('payment_type', 'rent')
-                ->sum('amount');
-            $today = now();
-            // Calculate full months only for clean amounts
-            $start = $assignment->start_date ? $assignment->start_date->copy()->startOfMonth() : null;
-            $end = $assignment->end_date && $assignment->end_date < $today ? $assignment->end_date->copy()->startOfMonth() : $today->copy()->startOfMonth();
-            $months = $start ? $start->diffInMonths($end) + 1 : 0;
-            $totalDue = $months * $assignment->monthly_rent;
-            $arrears = max(0, $totalDue - $totalPaid);
-            $sum_arrears += $arrears;
-        }
-        
-        return view('landlord.dashboard', [
-            'properties' => $properties,
-            'user' => $user,
-            'total_properties' => $total_properties,
-            'total_tenants' => $total_tenants,
-            'occupied_units' => $total_occupied_units,
-            'sum_arrears' => $sum_arrears
-        ]);
-    })->name('dashboard');
+    Route::get('/dashboard', [LandlordController::class, 'dashboard'])->name('dashboard');
     
     // Properties Resource
     Route::resource('properties', \App\Http\Controllers\Landlord\PropertyController::class);
@@ -144,6 +78,8 @@ Route::middleware(['auth', 'role:landlord'])->prefix('landlord')->name('landlord
     // Payment Management Routes
     Route::get('payments', [\App\Http\Controllers\Landlord\PaymentController::class, 'index'])->name('payments.index');
     Route::get('payments/create', [\App\Http\Controllers\Landlord\PaymentController::class, 'create'])->name('payments.create');
+    Route::get('payments/request', [\App\Http\Controllers\Landlord\PaymentController::class, 'showRequestForm'])->name('payments.request');
+    Route::post('payments/send-request', [\App\Http\Controllers\Landlord\PaymentController::class, 'sendRequest'])->name('payments.send-request');
     Route::post('payments', [\App\Http\Controllers\Landlord\PaymentController::class, 'store'])->name('payments.store');
     Route::get('payments/{payment}', [\App\Http\Controllers\Landlord\PaymentController::class, 'show'])->name('payments.show');
 
@@ -169,6 +105,7 @@ Route::middleware(['auth', 'role:tenant'])->prefix('tenant')->name('tenant.')->g
     Route::get('/messages', [TenantController::class, 'messages'])->name('messages');
     Route::get('/contact-landlord', [TenantController::class, 'contactLandlord'])->name('contact-landlord');
     Route::get('/settings', [TenantController::class, 'settings'])->name('settings');
+    Route::post('/settings', [TenantController::class, 'updateSettings'])->name('settings.update');
     Route::post('/make-payment', [TenantController::class, 'makePayment'])->name('make-payment');
     
     // Maintenance Routes
@@ -189,6 +126,14 @@ Route::middleware(['auth', 'role:tenant'])->prefix('tenant')->name('tenant.')->g
     Route::get('messages/{message}', [\App\Http\Controllers\Tenant\MessageController::class, 'show'])->name('messages.show');
     Route::patch('messages/{message}/read', [\App\Http\Controllers\Tenant\MessageController::class, 'markAsRead'])->name('messages.mark-read');
     Route::delete('messages/{message}', [\App\Http\Controllers\Tenant\MessageController::class, 'destroy'])->name('messages.destroy');
+});
+
+// Receipt Routes (Available to both landlords and tenants)
+Route::middleware('auth')->group(function () {
+    Route::get('/receipts', [\App\Http\Controllers\ReceiptController::class, 'index'])->name('receipts.index');
+    Route::get('/receipts/{receipt}', [\App\Http\Controllers\ReceiptController::class, 'show'])->name('receipts.show');
+    Route::get('/receipts/{receipt}/download', [\App\Http\Controllers\ReceiptController::class, 'downloadPdf'])->name('receipts.download');
+    Route::post('/receipts/{receipt}/resend-email', [\App\Http\Controllers\ReceiptController::class, 'resendEmail'])->name('receipts.resend-email');
 });
 
 Route::middleware('auth')->group(function () {

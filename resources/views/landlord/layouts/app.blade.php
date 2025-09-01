@@ -54,60 +54,53 @@
 
     <div class="flex">
         <!-- Sidebar -->
-        <div class="hidden md:flex md:flex-shrink-0">
+        <div class="hidden md:flex md:flex-shrink-0 min-h-screen">
             <div class="flex flex-col w-64 gradient-bg text-white shadow-2xl sidebar">
                 <div class="flex flex-col flex-grow pt-5 pb-4 overflow-y-auto">
-                    <div class="flex items-center flex-shrink-0 px-4">
+                    <div class="flex items-center flex-shrink-0 px-4 space-x-2">
+                        <img src="{{ asset('storage/properties/Screenshot 2025-08-22 070351.png') }}" alt="image" class="w-10 h-10 object-cover rounded-full shadow-md">
                         <h2 class="text-lg font-semibold text-white">Landlord Panel</h2>
                     </div>
-                    <div class="mt-5 flex-1 flex flex-col">
-                        <nav class="flex-1 px-2 space-y-1">
-                            <a href="{{ route('landlord.dashboard') }}" class="group flex items-center px-2 py-2 text-sm font-medium rounded-md {{ request()->routeIs('landlord.dashboard') ? 'bg-indigo-600 text-white' : 'text-blue-100 hover:text-white hover:bg-white hover:bg-opacity-10' }}">
-                                <i class="fas fa-tachometer-alt mr-3 text-gray-400 group-hover:text-gray-500 {{ request()->routeIs('landlord.dashboard') ? 'text-white' : '' }}"></i>
-                                Dashboard
-                            </a>
-                            <a href="{{ route('landlord.properties.index') }}" class="group flex items-center px-2 py-2 text-sm font-medium rounded-md {{ request()->routeIs('landlord.properties.*') ? 'bg-indigo-600 text-white' : 'text-blue-100 hover:text-white hover:bg-white hover:bg-opacity-10' }}">
-                                <i class="fas fa-building mr-3 text-gray-400 group-hover:text-gray-500 {{ request()->routeIs('landlord.properties.*') ? 'text-white' : '' }}"></i>
-                                Properties
-                            </a>
-                            <a href="{{ route('landlord.tenants.index') }}" class="group flex items-center px-2 py-2 text-sm font-medium rounded-md {{ request()->routeIs('landlord.tenants.*') ? 'bg-indigo-600 text-white' : 'text-blue-100 hover:text-white hover:bg-white hover:bg-opacity-10' }}">
-                                <i class="fas fa-users mr-3 text-gray-400 group-hover:text-gray-500 {{ request()->routeIs('landlord.tenants.*') ? 'text-white' : '' }}"></i>
-                                Tenants
-                            </a>
-                            <a href="#" class="group flex items-center px-2 py-2 text-sm font-medium rounded-md text-blue-100 hover:text-white hover:bg-white hover:bg-opacity-10">
-                                <i class="fas fa-money-bill-wave mr-3 text-gray-400 group-hover:text-gray-500"></i>
-                                Payments
-                            </a>
-                            <a href="#" class="group flex items-center px-2 py-2 text-sm font-medium rounded-md text-blue-100 hover:text-white hover:bg-white hover:bg-opacity-10">
-                                <i class="fas fa-file-invoice-dollar mr-3 text-gray-400 group-hover:text-gray-500"></i>
-                                Invoices
-                            </a>
-                            <a href="#" class="group flex items-center px-2 py-2 text-sm font-medium rounded-md text-blue-100 hover:text-white hover:bg-white hover:bg-opacity-10">
-                                <i class="fas fa-chart-line mr-3 text-gray-400 group-hover:text-gray-500"></i>
-                                Reports
-                            </a>
-                        </nav>
-                    </div>
-                </div>
-                <div class="flex-shrink-0 flex border-t border-gray-200 p-4">
-                    <a href="#" class="flex-shrink-0 w-full group block">
-                        <div class="flex items-center">
-                            <div>
-                                <div class="h-9 w-9 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-600">
-                                    <i class="fas fa-user"></i>
-                                </div>
-                            </div>
-                            <div class="ml-3">
-                                <p class="text-sm font-medium text-gray-700 group-hover:text-gray-900">
-                                    {{ Auth::user()->name }}
-                                </p>
-                                <p class="text-xs font-medium text-gray-500 group-hover:text-gray-700">
-                                    View profile
-                                </p>
-                            </div>
-                        </div>
+                    <nav class="space-y-2">
+                    <a href="{{ route('landlord.dashboard') }}" class="flex items-center space-x-3 bg-white bg-opacity-20 text-white p-3 rounded-lg transition hover:bg-opacity-30">
+                        <i class="fas fa-tachometer-alt w-5"></i>
+                        <span class="font-medium">Dashboard</span>
                     </a>
+                    <a href="{{ route('landlord.properties.index') }}" class="flex items-center space-x-3 text-blue-100 hover:text-white hover:bg-white hover:bg-opacity-10 p-3 rounded-lg transition">
+                        <i class="fas fa-building w-5"></i>
+                        <span>Properties</span>
+                    </a>
+                    <a href="{{ route('landlord.tenants.index') }}" class="flex items-center space-x-3 text-blue-100 hover:text-white hover:bg-white hover:bg-opacity-10 p-3 rounded-lg transition">
+                        <i class="fas fa-users w-5"></i>
+                        <span>Tenants</span>
+                    </a>
+                    <a href="{{ route('landlord.maintenance.index') }}" class="flex items-center space-x-3 text-blue-100 hover:text-white hover:bg-white hover:bg-opacity-10 p-3 rounded-lg transition">
+                        <i class="fas fa-tools w-5"></i>
+                        <span>Maintenance</span>
+                    </a>
+                    <a href="{{ route('landlord.messages.index') }}" class="flex items-center space-x-3 text-blue-100 hover:text-white hover:bg-white hover:bg-opacity-10 p-3 rounded-lg transition">
+                        <i class="fas fa-envelope w-5"></i>
+                        <span>Messages</span>
+                    </a>
+                    <a href="{{ route('landlord.payments.index') }}" class="flex items-center space-x-3 text-blue-100 hover:text-white hover:bg-white hover:bg-opacity-10 p-3 rounded-lg transition">
+                        <i class="fas fa-credit-card w-5"></i>
+                        <span>Payments</span>
+                    </a>
+                    <a href="{{ route('receipts.index') }}" class="flex items-center space-x-3 text-blue-100 hover:text-white hover:bg-white hover:bg-opacity-10 p-3 rounded-lg transition">
+                        <i class="fas fa-receipt w-5"></i>
+                        <span>Receipts</span>
+                    </a>
+                    <a href="{{ route('landlord.profile.edit') }}" class="flex items-center space-x-3 text-blue-100 hover:text-white hover:bg-white hover:bg-opacity-10 p-3 rounded-lg transition">
+                        <i class="fas fa-user-cog w-5"></i>
+                        <span>Profile</span>
+                    </a>
+                    <a href="{{ route('landlord.settings') }}" class="flex items-center space-x-3 text-blue-100 hover:text-white hover:bg-white hover:bg-opacity-10 p-3 rounded-lg transition">
+                        <i class="fas fa-cog w-5"></i>
+                        <span>Settings</span>
+                    </a>
+                </nav>
                 </div>
+                
             </div>
         </div>
 

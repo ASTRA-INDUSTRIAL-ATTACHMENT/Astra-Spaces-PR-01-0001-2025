@@ -4,15 +4,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Landlord\PropertyController;
 use App\Http\Controllers\MpesaController;
-
-
-//--------------------------------------------------------------------------
-// API Routes
-//--------------------------------------------------------------------------
-//Here is where you can register API routes for your application. These
-//routes are loaded by the RouteServiceProvider within a group which
-//is assigned the "api" middleware group. Enjoy building your API!
-
+use App\Http\Controllers\UssdController;
+// hold the api routes and functions
 
 // Public API routes
 Route::middleware('api')->group(function () {
@@ -21,10 +14,13 @@ Route::middleware('api')->group(function () {
         ->name('api.properties.available-units');
 });
 
+// USSD callback route (no auth required)
+Route::match(['get', 'post'], '/ussd/callback', [UssdController::class, 'callback'])->name('ussd.callback');
+
 // M-Pesa callback routes (no auth required)
 Route::prefix('mpesa')->group(function () {
-    Route::post('/callback', [MpesaController::class, 'callback'])->name('mpesa.callback');
-    Route::post('/timeout', [MpesaController::class, 'timeout'])->name('mpesa.timeout');
+    Route::match(['get', 'post'], '/callback', [MpesaController::class, 'callback'])->name('mpesa.callback');
+    Route::match(['get', 'post'], '/timeout', [MpesaController::class, 'timeout'])->name('mpesa.timeout');
     
     // M-Pesa Test Routes (for development/testing)
     Route::get('/test/success', [App\Http\Controllers\MpesaTestController::class, 'testSuccess'])->name('mpesa.test.success');
