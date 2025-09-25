@@ -1,7 +1,7 @@
  # 🏠 Rental Management System
 
 <div align="center">
-  <img src="docs/images/astra-spaces-banner.png" alt="Astra Spaces Banner" width="800"/>
+  <img src="docs/images/astra-spaces-banner.png" alt="Astra Spaces Banner" width="500"/>
 </div>
 
 <p align="center">
@@ -19,16 +19,7 @@
 
 ---
 
-## 🚀 Features
-- Landlord & tenant role management
-
-- Property & unit assignment
-- Rent payments via *M-Pesa STK Push* (Daraja API)
-- USSD access for tenants via *Africa’s Talking*
-- Arrears tracking & reporting
-- Hosted deployment (InfinityFree / Hostinger)
-
-## 📱 Key Features Screenshots
+## 🚀 📱 Key Features Screenshots
 
 ### 🏢 Landlord Dashboard
 <div align="center">
