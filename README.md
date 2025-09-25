@@ -54,11 +54,11 @@
 ---
 
 ## 🛠 Tech Stack
-- *Backend*: Laravel-PHP
-- *Database*: MySQL (v5.7+)
-- *Payment API*: Safaricom Daraja API
-- *USSD API*: Africa’s Talking
-- *Hosting*: InfinityFree / Hostinger
+- *Backend*: Laravel-PHP ![Laravel](https://img.shields.io/badge/Laravel-FF2D20?style=for-the-badge&logo=laravel&logoColor=white)
+- *Database*: MySQL (v5.7+) ![MySQL](https://img.shields.io/badge/MySQL-005C84?style=for-the-badge&logo=mysql&logoColor=white)
+- *Payment API*: Safaricom Daraja API ![Daraja](https://img.shields.io/badge/Daraja-FF2D20?style=for-the-badge&logo=daraja&logoColor=white)
+- *USSD API*: Africa’s Talking ![Africa’s Talking](https://img.shields.io/badge/Africa’s Talking-FF2D20?style=for-the-badge&logo=africas-talking&logoColor=white)
+- *Hosting*: InfinityFree / Hostinger ![InfinityFree](https://img.shields.io/badge/InfinityFree-FF2D20?style=for-the-badge&logo=infinityfree&logoColor=white)
 
 ---
 
