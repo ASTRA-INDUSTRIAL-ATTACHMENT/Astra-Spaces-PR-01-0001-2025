@@ -50,20 +50,19 @@
   <img src="docs/images/africas-talking-ussd.png" alt="Africa's Talking USSD Interface" width="700"/>
   <p><em>USSD-based tenant interaction for rent payments and account management</em></p>
 </div>
-
 ---
 
 ## 🛠 Tech Stack
 - *Backend*: Laravel-PHP ![Laravel](https://img.shields.io/badge/Laravel-FF2D20?style=for-the-badge&logo=laravel&logoColor=white)
 - *Database*: MySQL (v5.7+) ![MySQL](https://img.shields.io/badge/MySQL-005C84?style=for-the-badge&logo=mysql&logoColor=white)
-- *Payment API*: Safaricom Daraja API ![Daraja](https://developer.safaricom.co.ke/img/logo.png)
-- *USSD API*: Africa’s Talking ![Africa’s Talking](https://account.africastalking.com/assets/img/logos/logo-full-color.png)
+- *Payment API*: Safaricom Daraja API <img src="https://developer.safaricom.co.ke/img/logo.png" alt="Daraja" width="80" height="30"/>
+- *USSD API*: Africa's Talking <img src="https://account.africastalking.com/assets/img/logos/logo-full-color.png" alt="Africa's Talking" width="80" height="30"/>
 
 ---
 
 ## 📦 Installation & Setup
 
-### Requirements
+{{ ... }}
 -composer
 -laravel framework
 - PHP 
