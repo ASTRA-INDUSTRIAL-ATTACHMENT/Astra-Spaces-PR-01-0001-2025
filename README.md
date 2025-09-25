@@ -1,7 +1,7 @@
  # 🏠 Rental Management System
 
 <div align="center">
-  <img src="docs/images/astra-spaces-banner.png" alt="Astra Spaces Banner" width="500"/>
+  <img src="docs/images/astra-spaces-banner.png" alt="Astra Spaces Banner" width="200"/>
 </div>
 
 <p align="center">
