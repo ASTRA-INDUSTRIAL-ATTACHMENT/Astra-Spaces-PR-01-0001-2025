@@ -1,5 +1,8 @@
 <!DOCTYPE html>
-<html lang="en">
+@php
+    $currentTheme = auth()->check() ? \App\Models\Setting::getUserSetting(auth()->id(), 'theme', 'light') : 'light';
+@endphp
+<html lang="en" class="{{ $currentTheme }}" data-theme="{{ $currentTheme }}" id="html-root">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,6 +10,7 @@
     <title>@yield('title', 'Tenant Dashboard - Rental')</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
+    <link href="{{ asset('css/dark-mode.css') }}" rel="stylesheet">
     <style>
         @keyframes fadeInUp {
             from { opacity: 0; transform: translateY(20px); }
@@ -30,7 +34,7 @@
     </style>
     @stack('styles')
 </head>
-<body class="bg-navy-900 min-h-screen">
+<body class="min-h-screen">
     <div class="flex">
         <!-- Sidebar -->
         <div class="w-64 gradient-bg text-white min-h-screen shadow-2xl">
@@ -91,5 +95,34 @@
     </div>
 
     @stack('scripts')
+    
+    <script>
+        // Sync localStorage theme with database theme on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            const htmlRoot = document.getElementById('html-root');
+            const localStorageTheme = localStorage.getItem('theme');
+            const currentTheme = htmlRoot.getAttribute('data-theme');
+            
+            // If localStorage has a different theme than database, update the page immediately
+            if (localStorageTheme && localStorageTheme !== currentTheme) {
+                htmlRoot.setAttribute('data-theme', localStorageTheme);
+                htmlRoot.className = localStorageTheme;
+                
+                // Send AJAX request to update database
+                fetch('{{ route("tenant.settings.update") }}', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                    },
+                    body: JSON.stringify({
+                        theme: localStorageTheme
+                    })
+                }).catch(error => {
+                    console.log('Theme sync failed:', error);
+                });
+            }
+        });
+    </script>
 </body>
 </html>

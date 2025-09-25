@@ -1,8 +1,12 @@
 <!DOCTYPE html>
-<html lang="en">
+@php
+    $currentTheme = auth()->check() ? \App\Models\Setting::getUserSetting(auth()->id(), 'theme', 'light') : 'light';
+@endphp
+<html lang="en" class="{{ $currentTheme }}" data-theme="{{ $currentTheme }}" id="html-root">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>@yield('title', 'Landlord Dashboard - Astra Spaces')</title>
     
     <!-- Tailwind CSS -->
@@ -16,6 +20,9 @@
     
     <!-- Google Fonts - Inter -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Dark Mode CSS -->
+    <link href="{{ asset('css/dark-mode.css') }}" rel="stylesheet">
     
     <style>
         body {
@@ -106,19 +113,6 @@
 
         <!-- Main content -->
         <div class="flex-1 overflow-auto">
-            <!-- Page heading -->
-            <header class="bg-white shadow-sm">
-                <div class="max-w-7xl mx-auto py-4 px-4 sm:px-6 lg:px-8">
-                    <div class="flex justify-between items-center">
-                        <h1 class="text-xl font-semibold text-gray-900">
-                            @yield('header')
-                        </h1>
-                        <div class="ml-4">
-                            @yield('header-actions')
-                        </div>
-                    </div>
-                </div>
-            </header>
 
             <!-- Page content -->
             <main class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
@@ -201,5 +195,34 @@
     </script>
     
     @stack('scripts')
+    
+    <script>
+        // Sync localStorage theme with database theme on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            const htmlRoot = document.getElementById('html-root');
+            const localStorageTheme = localStorage.getItem('theme');
+            const currentTheme = htmlRoot.getAttribute('data-theme');
+            
+            // If localStorage has a different theme than database, update the page immediately
+            if (localStorageTheme && localStorageTheme !== currentTheme) {
+                htmlRoot.setAttribute('data-theme', localStorageTheme);
+                htmlRoot.className = localStorageTheme;
+                
+                // Send AJAX request to update database
+                fetch('{{ route("landlord.settings.update") }}', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                    },
+                    body: JSON.stringify({
+                        theme: localStorageTheme
+                    })
+                }).catch(error => {
+                    console.log('Theme sync failed:', error);
+                });
+            }
+        });
+    </script>
 </body>
 </html>

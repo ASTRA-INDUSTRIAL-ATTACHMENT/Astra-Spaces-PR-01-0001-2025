@@ -1,0 +1,97 @@
+services:
+  # Web Application
+  - type: web
+    name: laravel-rental-system
+    env: docker
+    dockerfilePath: Dockerfile
+    plan: starter
+    region: oregon
+    envVars:
+      - key: APP_NAME
+        value: "Rental Management System"
+      - key: APP_ENV
+        value: production
+      - key: APP_DEBUG
+        value: false
+      - key: APP_KEY
+        generateValue: true
+      - key: LOG_CHANNEL
+        value: stderr
+      - key: LOG_LEVEL
+        value: info
+      - key: DB_CONNECTION
+        value: pgsql
+      - key: DB_HOST
+        fromDatabase:
+          name: rental-postgres
+          property: host
+      - key: DB_PORT
+        fromDatabase:
+          name: rental-postgres
+          property: port
+      - key: DB_DATABASE
+        fromDatabase:
+          name: rental-postgres
+          property: database
+      - key: DB_USERNAME
+        fromDatabase:
+          name: rental-postgres
+          property: user
+      - key: DB_PASSWORD
+        fromDatabase:
+          name: rental-postgres
+          property: password
+      - key: REDIS_URL
+        fromService:
+          type: redis
+          name: rental-redis
+          property: connectionString
+      - key: CACHE_STORE
+        value: database
+      - key: SESSION_DRIVER
+        value: database
+      - key: QUEUE_CONNECTION
+        value: database
+      - key: MAIL_MAILER
+        value: smtp
+      - key: MAIL_HOST
+        value: smtp.gmail.com
+      - key: MAIL_PORT
+        value: 587
+      - key: MAIL_USERNAME
+        sync: false
+      - key: MAIL_PASSWORD
+        sync: false
+      - key: MAIL_ENCRYPTION
+        value: tls
+      - key: MAIL_FROM_ADDRESS
+        sync: false
+      - key: MAIL_FROM_NAME
+        value: "Rental Management System"
+      # M-Pesa Configuration
+      - key: MPESA_ENVIRONMENT
+        value: production
+      - key: MPESA_CONSUMER_KEY
+        sync: false
+      - key: MPESA_CONSUMER_SECRET
+        sync: false
+      - key: MPESA_SHORTCODE
+        sync: false
+      - key: MPESA_PASSKEY
+        sync: false
+      - key: MPESA_CALLBACK_URL
+        sync: false
+      # SMS Configuration
+      - key: SMS_API_KEY
+        sync: false
+      - key: SMS_USERNAME
+        sync: false
+      - key: SMS_BASE_URL
+        value: https://api.africastalking.com/version1/messaging
+      - key: SMS_FROM
+        sync: false
+
+databases:
+  - name: rental-postgres
+    databaseName: rental_system
+    user: laravel
